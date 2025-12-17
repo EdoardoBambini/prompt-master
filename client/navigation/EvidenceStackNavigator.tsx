@@ -1,26 +1,26 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import ProfileScreen from "@/screens/ProfileScreen";
+import EvidenceScreen from "@/screens/EvidenceScreen";
 import { useScreenOptions } from "@/hooks/useScreenOptions";
 import { HeaderTitle } from "@/components/HeaderTitle";
 
-export type ProfileStackParamList = {
-  Profile: undefined;
+export type EvidenceStackParamList = {
+  Evidence: undefined;
 };
 
-const Stack = createNativeStackNavigator<ProfileStackParamList>();
+const Stack = createNativeStackNavigator<EvidenceStackParamList>();
 
-export default function ProfileStackNavigator() {
+export default function EvidenceStackNavigator() {
   const screenOptions = useScreenOptions();
 
   return (
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
+        name="Evidence"
+        component={EvidenceScreen}
         options={{
-          headerTitle: () => <HeaderTitle title="Profile" />,
+          headerTitle: () => <HeaderTitle title="Evidence Cards" />,
         }}
       />
     </Stack.Navigator>
