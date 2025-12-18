@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Session, EvidenceCard, HypothesisCard, RoadmapCard, SessionMode } from "@/types/reasoning";
 import { apiRequest, getApiUrl } from "@/lib/query-client";
+import { useAuth } from "@/hooks/useAuth";
 
 const SESSIONS_KEY = "@scireason_sessions";
 const EVIDENCE_KEY = "@scireason_evidence";
@@ -34,13 +35,35 @@ export function StorageProvider({ children }: { children: ReactNode }) {
   const [roadmapCards, setRoadmapCards] = useState<RoadmapCard[]>([]);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { token, isAuthenticated } = useAuth();
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [isAuthenticated, token]);
 
   const loadData = async () => {
     try {
+      if (isAuthenticated && token) {
+        try {
+          const response = await fetch(`${getApiUrl()}/api/sessions`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (response.ok) {
+            const apiSessions = await response.json();
+            const formattedSessions: Session[] = apiSessions.map((s: any) => ({
+              ...s,
+              createdAt: s.createdAt || new Date().toISOString(),
+              updatedAt: s.updatedAt || new Date().toISOString(),
+            }));
+            setSessions(formattedSessions);
+            return;
+          }
+        } catch (error) {
+          console.log("Failed to load from API, falling back to local storage");
+        }
+      }
+      
       const [sessionsData, evidenceData, hypothesesData, roadmapsData] = await Promise.all([
         AsyncStorage.getItem(SESSIONS_KEY),
         AsyncStorage.getItem(EVIDENCE_KEY),
@@ -87,6 +110,28 @@ export function StorageProvider({ children }: { children: ReactNode }) {
       hypothesisCardIds: [],
     };
 
+    if (isAuthenticated && token) {
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newSession),
+        });
+        if (response.ok) {
+          const savedSession = await response.json();
+          setSessions([savedSession, ...sessions]);
+          setCurrentSession(savedSession);
+          processNextStep(savedSession.id);
+          return savedSession;
+        }
+      } catch (error) {
+        console.log("Failed to save to API, falling back to local storage");
+      }
+    }
+
     const updatedSessions = [newSession, ...sessions];
     await saveSessions(updatedSessions);
     setCurrentSession(newSession);
@@ -94,27 +139,70 @@ export function StorageProvider({ children }: { children: ReactNode }) {
     processNextStep(newSession.id);
 
     return newSession;
-  }, [sessions]);
+  }, [sessions, isAuthenticated, token]);
 
   const getSession = useCallback((id: string): Session | undefined => {
     return sessions.find(s => s.id === id);
   }, [sessions]);
 
   const updateSession = useCallback(async (session: Session): Promise<void> => {
-    const updatedSessions = sessions.map(s => s.id === session.id ? { ...session, updatedAt: new Date().toISOString() } : s);
+    const updatedSession = { ...session, updatedAt: new Date().toISOString() };
+    
+    if (isAuthenticated && token) {
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions/${session.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedSession),
+        });
+        if (response.ok) {
+          const savedSession = await response.json();
+          setSessions(sessions.map(s => s.id === session.id ? savedSession : s));
+          if (currentSession?.id === session.id) {
+            setCurrentSession(savedSession);
+          }
+          return;
+        }
+      } catch (error) {
+        console.log("Failed to update on API, falling back to local storage");
+      }
+    }
+    
+    const updatedSessions = sessions.map(s => s.id === session.id ? updatedSession : s);
     await saveSessions(updatedSessions);
     if (currentSession?.id === session.id) {
-      setCurrentSession(session);
+      setCurrentSession(updatedSession);
     }
-  }, [sessions, currentSession]);
+  }, [sessions, currentSession, isAuthenticated, token]);
 
   const deleteSession = useCallback(async (id: string): Promise<void> => {
+    if (isAuthenticated && token) {
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          setSessions(sessions.filter(s => s.id !== id));
+          if (currentSession?.id === id) {
+            setCurrentSession(null);
+          }
+          return;
+        }
+      } catch (error) {
+        console.log("Failed to delete on API, falling back to local storage");
+      }
+    }
+    
     const updatedSessions = sessions.filter(s => s.id !== id);
     await saveSessions(updatedSessions);
     if (currentSession?.id === id) {
       setCurrentSession(null);
     }
-  }, [sessions, currentSession]);
+  }, [sessions, currentSession, isAuthenticated, token]);
 
   const getEvidenceCard = useCallback((id: string): EvidenceCard | undefined => {
     return evidenceCards.find(c => c.id === id);

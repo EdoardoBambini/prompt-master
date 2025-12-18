@@ -9,6 +9,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors } from "@/constants/theme";
 import { ThemedText } from "@/components/ThemedText";
 import { useStorage } from "@/hooks/useStorage";
+import { useAuth } from "@/hooks/useAuth";
 
 function SettingsItem({ 
   icon, 
@@ -71,6 +72,7 @@ export default function ProfileScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme, isDark } = useTheme();
   const { clearAllData } = useStorage();
+  const { user, logout } = useAuth();
 
   const handleClearData = () => {
     Alert.alert(
@@ -82,6 +84,21 @@ export default function ProfileScreen() {
           text: "Clear Data",
           style: "destructive",
           onPress: clearAllData,
+        },
+      ]
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: logout,
         },
       ]
     );
@@ -107,12 +124,25 @@ export default function ProfileScreen() {
     >
       <View style={[styles.avatarContainer, { backgroundColor: theme.backgroundDefault }]}>
         <View style={[styles.avatar, { backgroundColor: isDark ? Colors.dark.primary : Colors.light.primary }]}>
-          <Feather name="activity" size={32} color="#FFFFFF" />
+          <Feather name="user" size={32} color="#FFFFFF" />
         </View>
-        <ThemedText type="h4" style={styles.userName}>Researcher</ThemedText>
+        <ThemedText type="h4" style={styles.userName}>{user?.email || "Researcher"}</ThemedText>
         <ThemedText type="small" style={{ color: theme.textSecondary }}>
           Scientific Reasoning Engine
         </ThemedText>
+      </View>
+
+      <ThemedText type="small" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+        ACCOUNT
+      </ThemedText>
+      <View style={[styles.settingsGroup, { backgroundColor: theme.backgroundDefault }]}>
+        <SettingsItem
+          icon="log-out"
+          title="Sign Out"
+          subtitle="Log out of your account"
+          onPress={handleLogout}
+          destructive
+        />
       </View>
 
       <ThemedText type="small" style={[styles.sectionTitle, { color: theme.textSecondary }]}>

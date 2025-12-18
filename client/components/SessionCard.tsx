@@ -83,35 +83,39 @@ export function SessionCard({ session, onPress, onDelete, style }: SessionCardPr
         {session.problemStatement}
       </ThemedText>
 
-      <View style={styles.progressContainer}>
-        <View style={[styles.progressBar, { backgroundColor: theme.backgroundSecondary }]}>
-          <View
-            style={[
-              styles.progressFill,
-              {
-                backgroundColor: getStatusColor(),
-                width: `${progressPercent}%`,
-              },
-            ]}
-          />
+      <View style={styles.footer}>
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressBar, { backgroundColor: theme.backgroundSecondary }]}>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  backgroundColor: getStatusColor(),
+                  width: `${progressPercent}%`,
+                },
+              ]}
+            />
+          </View>
+          <ThemedText type="small" style={{ color: theme.textSecondary, marginLeft: Spacing.sm }}>
+            {progress}/{maxSteps}
+          </ThemedText>
         </View>
-        <ThemedText type="small" style={{ color: theme.textSecondary, marginLeft: Spacing.sm }}>
-          {progress}/{maxSteps}
-        </ThemedText>
+        {onDelete ? (
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            style={({ pressed }) => [
+              styles.deleteButton,
+              { opacity: pressed ? 0.6 : 1 },
+            ]}
+            hitSlop={10}
+          >
+            <Feather name="trash-2" size={16} color={isDark ? Colors.dark.error : Colors.light.error} />
+          </Pressable>
+        ) : null}
       </View>
-
-      {onDelete ? (
-        <Pressable
-          onPress={onDelete}
-          style={({ pressed }) => [
-            styles.deleteButton,
-            { opacity: pressed ? 0.6 : 1 },
-          ]}
-          hitSlop={10}
-        >
-          <Feather name="trash-2" size={16} color={isDark ? Colors.dark.error : Colors.light.error} />
-        </Pressable>
-      ) : null}
     </Pressable>
   );
 }
@@ -120,7 +124,6 @@ const styles = StyleSheet.create({
   card: {
     padding: Spacing.lg,
     borderRadius: BorderRadius.md,
-    position: "relative",
   },
   header: {
     flexDirection: "row",
@@ -143,7 +146,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     marginBottom: Spacing.md,
   },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   progressContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -158,9 +166,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   deleteButton: {
-    position: "absolute",
-    top: Spacing.lg,
-    right: Spacing.lg,
+    marginLeft: Spacing.md,
     padding: Spacing.xs,
   },
 });
