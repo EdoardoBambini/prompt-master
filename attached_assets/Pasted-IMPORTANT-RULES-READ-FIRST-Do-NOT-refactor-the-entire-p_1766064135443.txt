@@ -1,0 +1,179 @@
+IMPORTANT RULES (READ FIRST)
+- Do NOT refactor the entire project.
+- Do NOT change the core reasoning logic or AI prompts already in place.
+- Do NOT remove or shorten long-form reasoning outputs (“wall of text”).
+- Do NOT add new external AI services.
+- Backend, server, and database changes must be minimal and incremental.
+- This is a scientific R&D decision-support tool, NOT a motivational or chat-style AI.
+
+The AI must NOT be overly agreeable or optimistic.
+Skepticism, feasibility constraints, cost awareness, and explicit uncertainty are REQUIRED.
+
+────────────────────────────────
+PROJECT GOAL
+────────────────────────────────
+Transform the existing app into a serious, professional scientific decision-support platform
+(similar to ChatGPT in UX persistence, but focused on research, evidence, and R&D),
+while preserving the current high-quality reasoning outputs.
+
+────────────────────────────────
+KANBAN TASKS
+────────────────────────────────
+
+========================
+COLUMN 1 — AUTH & USERS
+========================
+
+TASK 1.1 — User Authentication (Frontend + Backend)
+- Add a Login / Sign-up flow.
+- Users must be able to create an account and log in.
+- Authentication can be email + password (no social login required for now).
+- Sessions must persist across app restarts.
+
+TASK 1.2 — User Database
+- Add a Users table/collection with:
+  - userId
+  - email
+  - createdAt
+- Each user must have isolated data (no cross-user visibility).
+
+TASK 1.3 — User Session History (ChatGPT-style)
+- Each logged-in user must have:
+  - a list of past research sessions
+  - ability to reopen any past session
+- For each session, store:
+  - original query
+  - timestamps
+  - all generated steps and outputs
+- The Home / Library screen must show:
+  - session title (derived from query)
+  - date
+  - delete button (non-overlapping with date)
+- Fix UI issue where the trash/delete icon overlaps the date label.
+
+========================
+COLUMN 2 — EVIDENCE & CITATIONS
+========================
+
+TASK 2.1 — Evidence Cards as Real Studies
+- Evidence Cards represent scientific studies or authoritative sources.
+- Each Evidence Card must include:
+  - id (EV001, EV002…)
+  - title
+  - authors
+  - year
+  - journal / venue
+  - study type (RCT, meta-analysis, review, guideline, observational, mechanistic)
+  - population
+  - intervention / comparator
+  - key outcomes
+  - effect summary
+  - main limitations / bias
+  - DOI and/or PMID (if available)
+  - source URL (PubMed or DOI preferred)
+
+If DOI/PMID are not available, explicitly state it and provide the best available primary source.
+
+TASK 2.2 — Citations Everywhere
+- All reasoning steps must reference Evidence Cards using IDs (e.g. [EV001]).
+- Each step output must end with a “References” section listing cited EV cards.
+- Evidence IDs in text must be clickable in the UI and open the corresponding Evidence Card.
+
+========================
+COLUMN 3 — HYPOTHESES & SCIENTIFIC RIGOR
+========================
+
+TASK 3.1 — Hypothesis Generation Upgrade
+- Each hypothesis must include:
+  - hypothesisId (HYP001…)
+  - falsifiable statement
+  - rationale
+  - supportedBy (list of EV IDs)
+  - alternative explanations
+  - falsification tests
+  - confidence level (default LOW unless strongly justified)
+
+UI must clearly show:
+“Supported by: EV001, EV004…”
+
+TASK 3.2 — Non-Accommodating Scientific Tone
+- Avoid optimistic or promotional language.
+- Explicitly state:
+  - uncertainty
+  - confounding variables
+  - translational risks
+  - reasons why hypotheses may fail
+
+========================
+COLUMN 4 — EXECUTIVE SUMMARY (ADDITIVE LAYER)
+========================
+
+TASK 4.1 — Executive Summary Per Step
+- ABOVE each long-form text, add an Executive Summary card with:
+  - Core takeaway (2–3 bullets)
+  - Evidence strength (Low / Medium / High)
+  - Key limitations & failure modes
+  - Concrete next actions
+
+Rules:
+- Long-form text remains fully visible and unchanged below.
+- Summaries must be heuristically extracted from existing text.
+- No new AI calls.
+
+TASK 4.2 — Session-Level Summary
+- At the top of each session, add a “Decision Summary” panel:
+  - Best current answer
+  - What remains unknown
+  - Selected vs rejected hypotheses
+  - Overall confidence
+  - Top 3 next decisions
+
+========================
+COLUMN 5 — R&D FEASIBILITY, COSTS & RISK
+========================
+
+TASK 5.1 — R&D Roadmap Feasibility Layer
+- Extend roadmap presentation with:
+  - Estimated timelines (order of magnitude)
+  - Estimated costs (conservative ranges)
+  - Main failure risks per phase
+  - Go / No-Go criteria
+  - Regulatory bottlenecks
+
+Explicitly state:
+“Most drug development programs fail.”
+
+Avoid optimistic timelines or claims.
+
+========================
+COLUMN 6 — UI POLISH
+========================
+
+TASK 6.1 — Library UI Fix
+- Move the delete (trash) icon so it does NOT overlap the date.
+- Improve spacing and touch safety.
+- Do NOT change functionality.
+
+TASK 6.2 — Clickable References
+- Evidence IDs and references must be clickable.
+- Opening a reference should not break navigation.
+
+────────────────────────────────
+QUALITY CONSTRAINTS
+────────────────────────────────
+- Conservative, critical scientific tone.
+- No invented citations.
+- Clear separation between evidence, inference, and speculation.
+- Minimal file changes.
+- Backward-compatible data migrations only.
+
+────────────────────────────────
+OUTPUT REQUIRED FROM THE CODING ASSISTANT
+────────────────────────────────
+- List of files modified.
+- Full updated code for modified files only.
+- Brief explanation of how to test:
+  - login
+  - session persistence
+  - citation clicks
+  - resume past research
