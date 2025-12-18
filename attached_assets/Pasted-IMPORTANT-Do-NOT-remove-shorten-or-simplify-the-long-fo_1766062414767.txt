@@ -1,0 +1,120 @@
+IMPORTANT:
+Do NOT remove, shorten, or simplify the long-form reasoning text ("wall of text").
+Those represent the full scientific report and must remain intact.
+Do NOT refactor backend, server logic, APIs, routing, or data schemas.
+Do NOT add new AI calls or external services.
+
+CRITICAL REQUIREMENT:
+The AI must NOT be overly agreeable or optimistic.
+This is a scientific R&D context (drug development, translational research).
+Critical reasoning, skepticism, cost awareness, and feasibility constraints are mandatory.
+
+GOAL:
+Preserve the existing deep, long-form scientific reasoning,
+while adding an additional decision-support layer that highlights:
+- realism
+- constraints
+- risks
+- costs
+- and feasibility
+
+This is NOT a motivational or exploratory AI.
+This is a scientific decision-support tool.
+
+────────────────────────────
+A) EXECUTIVE SUMMARY (ADDITIVE ONLY)
+────────────────────────────
+For each reasoning step, add an "Executive Summary" card ABOVE the existing text.
+The full text remains fully visible immediately below.
+
+The Executive Summary must include:
+
+1) Core Takeaway (2–3 bullets)
+   - What can realistically be claimed
+   - What CANNOT be claimed yet
+
+2) Evidence Strength
+   - Low / Medium / High
+   - Short justification extracted from the text
+
+3) Key Limitations & Failure Modes (max 5 bullets)
+   - Confounding variables
+   - Measurement bias
+   - Population mismatch
+   - Translational risk
+   - Overinterpretation risk
+
+4) Next Actions (max 5 bullets)
+   - Concrete, testable, incremental steps only
+   - No speculative or vague actions
+
+Rules:
+- No new AI calls
+- Heuristic extraction from existing text
+- Memoized parsing
+
+────────────────────────────
+B) SESSION-LEVEL DECISION SUMMARY
+────────────────────────────
+At the top of the session, add a persistent "Decision Summary" panel:
+
+- Best current answer (concise, cautious)
+- What is still unknown (bullets)
+- Selected hypothesis (if any)
+- Rejected hypotheses with explicit reasons
+- Confidence level: LOW / MEDIUM / HIGH (default to LOW unless clearly justified)
+- Top 3 next decisions to be made
+
+Tone must be conservative and non-promissory.
+
+────────────────────────────
+C) STUDY & EVIDENCE VALIDITY (ADDITIVE UI)
+────────────────────────────
+Add a "Evidence & Study Validity" section (purely UI):
+
+Evaluate across 4 dimensions:
+1) Internal validity / bias
+2) External validity / generalizability
+3) Measurement validity
+4) Statistical robustness
+
+For each:
+- Score 0–100 (heuristic)
+- Short explanation extracted from text
+- Explicit disclaimer:
+  "Heuristic estimate for decision support only. Not ground truth."
+
+────────────────────────────
+D) R&D FEASIBILITY, COSTS & TIMELINES (MANDATORY)
+────────────────────────────
+Extend the R&D Roadmap presentation with a structured feasibility layer:
+
+For each phase (Preclinical / Phase I / Phase II / Phase III):
+- Estimated duration (order-of-magnitude, e.g. months/years)
+- Estimated cost range (rough, conservative ranges)
+- Primary failure risks
+- Go / No-Go decision criteria
+- Regulatory bottlenecks
+
+Rules:
+- Conservative estimates only
+- If uncertainty is high, explicitly state it
+- Avoid optimistic timelines or costs
+
+This layer must emphasize:
+"Most drug development programs fail."
+
+────────────────────────────
+E) UX & PRESENTATION CONSTRAINTS
+────────────────────────────
+- Long-form text must remain readable and unchanged
+- Executive summaries must not hide complexity
+- Use spacing and hierarchy suitable for professional research tools
+- No gamification, no optimistic language
+- Preserve navigation and existing functionality
+
+────────────────────────────
+OUTPUT REQUIREMENTS
+────────────────────────────
+- List files changed
+- Provide full updated code for changed files only
