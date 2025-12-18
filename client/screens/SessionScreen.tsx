@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { ScrollView, View, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useMemo } from "react";
+import { ScrollView, View, StyleSheet } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,9 +12,17 @@ import { ThemedText } from "@/components/ThemedText";
 import { StepCard } from "@/components/StepCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Button } from "@/components/Button";
+import { DecisionSummary } from "@/components/DecisionSummary";
+import { EvidenceValidityPanel } from "@/components/EvidenceValidityPanel";
+import { RoadmapFeasibility } from "@/components/RoadmapFeasibility";
 import { HomeStackParamList } from "@/navigation/HomeStackNavigator";
 import { useStorage } from "@/hooks/useStorage";
 import { Session, WORKFLOW_STEPS } from "@/types/reasoning";
+import { 
+  parseDecisionSummary, 
+  parseValidityScores, 
+  parsePhaseFeasibility 
+} from "@/lib/heuristicParser";
 
 type SessionScreenRouteProp = RouteProp<HomeStackParamList, "Session">;
 
@@ -28,6 +36,20 @@ export default function SessionScreen() {
 
   const session = getSession(route.params.sessionId);
 
+  const decisionSummary = useMemo(() => {
+    if (!session) return null;
+    return parseDecisionSummary(session);
+  }, [session?.stepData, session?.completedSteps]);
+
+  const validityScores = useMemo(() => {
+    if (!session?.stepData) return null;
+    return parseValidityScores(session.stepData);
+  }, [session?.stepData]);
+
+  const phaseFeasibility = useMemo(() => {
+    return parsePhaseFeasibility(session?.stepData?.step9);
+  }, [session?.stepData?.step9]);
+
   if (!session) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: theme.backgroundRoot }]}>
@@ -38,6 +60,7 @@ export default function SessionScreen() {
 
   const currentStepIndex = session.currentStep;
   const completedSteps = session.completedSteps || [];
+  const showRoadmapFeasibility = session.mode === "roadmap" && completedSteps.includes(8);
 
   const handleContinue = async () => {
     if (currentStepIndex < WORKFLOW_STEPS.length) {
@@ -66,6 +89,10 @@ export default function SessionScreen() {
         </View>
       </View>
 
+      {decisionSummary && completedSteps.length > 0 ? (
+        <DecisionSummary data={decisionSummary} />
+      ) : null}
+
       <View style={styles.progressSection}>
         <View style={styles.progressHeader}>
           <ThemedText type="small" style={{ color: theme.textSecondary }}>Progress</ThemedText>
@@ -79,11 +106,14 @@ export default function SessionScreen() {
         />
       </View>
 
+      {validityScores && completedSteps.includes(2) ? (
+        <EvidenceValidityPanel scores={validityScores} />
+      ) : null}
+
       <View style={styles.stepsContainer}>
         {WORKFLOW_STEPS.slice(0, session.mode === "evidence" ? 7 : WORKFLOW_STEPS.length).map((step, index) => {
           const isCompleted = completedSteps.includes(index);
           const isActive = index === currentStepIndex;
-          const isPending = index > currentStepIndex;
 
           return (
             <StepCard
@@ -92,10 +122,15 @@ export default function SessionScreen() {
               status={isCompleted ? "completed" : isActive ? "active" : "pending"}
               data={session.stepData?.[step.id]}
               isProcessing={isProcessing && isActive}
+              showExecutiveSummary={isCompleted && index > 0}
             />
           );
         })}
       </View>
+
+      {showRoadmapFeasibility ? (
+        <RoadmapFeasibility phases={phaseFeasibility} />
+      ) : null}
 
       {session.status === "in_progress" && currentStepIndex < (session.mode === "evidence" ? 7 : WORKFLOW_STEPS.length) ? (
         <View style={styles.actionContainer}>
