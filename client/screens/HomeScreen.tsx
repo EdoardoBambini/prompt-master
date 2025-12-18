@@ -61,7 +61,13 @@ export default function HomeScreen() {
               <SessionCard
                 key={session.id}
                 session={session}
-                onPress={() => navigation.navigate("Session", { sessionId: session.id })}
+                onPress={() => {
+                  try {
+                    navigation.navigate("Session", { sessionId: session.id });
+                  } catch (error) {
+                    console.warn("Navigation to Session failed:", error);
+                  }
+                }}
               />
             ))}
           </View>
@@ -76,7 +82,13 @@ export default function HomeScreen() {
               <SessionCard
                 key={session.id}
                 session={session}
-                onPress={() => navigation.navigate("Session", { sessionId: session.id })}
+                onPress={() => {
+                  try {
+                    navigation.navigate("Session", { sessionId: session.id });
+                  } catch (error) {
+                    console.warn("Navigation to Session failed:", error);
+                  }
+                }}
                 style={{ marginBottom: Spacing.md }}
               />
             ))}

@@ -11,7 +11,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { Spacing, BorderRadius, Colors } from "@/constants/theme";
 import { ThemedText } from "@/components/ThemedText";
 import { SessionCard } from "@/components/SessionCard";
-import { HomeStackParamList } from "@/navigation/HomeStackNavigator";
+import { LibraryStackParamList } from "@/navigation/LibraryStackNavigator";
 import { useStorage } from "@/hooks/useStorage";
 
 export default function LibraryScreen() {
@@ -19,7 +19,7 @@ export default function LibraryScreen() {
   const headerHeight = useHeaderHeight();
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const { sessions, deleteSession } = useStorage();
 
   const handleDelete = (sessionId: string) => {
@@ -64,7 +64,13 @@ export default function LibraryScreen() {
       renderItem={({ item }) => (
         <SessionCard
           session={item}
-          onPress={() => navigation.navigate("Session", { sessionId: item.id })}
+          onPress={() => {
+            try {
+              navigation.navigate("Session", { sessionId: item.id });
+            } catch (error) {
+              console.warn("Navigation to Session failed:", error);
+            }
+          }}
           onDelete={() => handleDelete(item.id)}
         />
       )}

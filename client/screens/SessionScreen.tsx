@@ -16,6 +16,7 @@ import { DecisionSummary } from "@/components/DecisionSummary";
 import { EvidenceValidityPanel } from "@/components/EvidenceValidityPanel";
 import { RoadmapFeasibility } from "@/components/RoadmapFeasibility";
 import { HomeStackParamList } from "@/navigation/HomeStackNavigator";
+import { LibraryStackParamList } from "@/navigation/LibraryStackNavigator";
 import { useStorage } from "@/hooks/useStorage";
 import { Session, WORKFLOW_STEPS } from "@/types/reasoning";
 import { 
@@ -24,7 +25,7 @@ import {
   parsePhaseFeasibility 
 } from "@/lib/heuristicParser";
 
-type SessionScreenRouteProp = RouteProp<HomeStackParamList, "Session">;
+type SessionScreenRouteProp = RouteProp<HomeStackParamList | LibraryStackParamList, "Session">;
 
 export default function SessionScreen() {
   const insets = useSafeAreaInsets();
