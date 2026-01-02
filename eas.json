@@ -1,0 +1,9 @@
+{
+  "build": {
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_DOMAIN": "web-production-92177.up.railway.app"
+      }
+    }
+  }
+}
